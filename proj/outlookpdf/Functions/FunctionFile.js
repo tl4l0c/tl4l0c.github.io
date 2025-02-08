@@ -16,7 +16,7 @@ function statusUpdate(icon, text, event) {
 }
 // Displays a notification bar.
 function defaultStatus(event) {
-  statusUpdate("icon16" , "Hello World!", event);
+  statusUpdate("icon16" , "El TJ se la come toda!", event);
 }
 
 // Maps the function name specified in the manifest to its JavaScript counterpart.
