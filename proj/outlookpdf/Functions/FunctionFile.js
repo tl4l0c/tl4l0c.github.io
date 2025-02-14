@@ -1,7 +1,28 @@
 ﻿// Loads the Office.js library.
 Office.onReady().then(() => {
     console.log("Office está listo.");
+    const item = Office.context.mailbox.item;
+
+    if (item) {
+        console.log('onReady -- setTimeout :: item');
+        item.body.getAsync(Office.CoercionType.Html, (result) => {
+            console.log('onReady -- setTimeout :: item.body.getAsync');
+            if (result.status === Office.AsyncResultStatus.Succeeded) {
+                console.log("onReady -- Contenido del correo:", result.value);
+            } else {
+                console.error("onReady -- Error al obtener el cuerpo:", result.error);
+            }
+        });
+    } else {
+        console.error("onReady -- El correo aún no está disponible.");
+    }
+    console.log("Office end.");
 });
+
+function defaultStatus(event) {
+    statusUpdate("icon16", "Hi 20250214 09:25!!!", event);
+}
+
 
 // Helper function to add a status message to the notification bar.
 function statusUpdate(icon, text, event) {
@@ -91,9 +112,7 @@ function statusUpdate(icon, text, event) {
   });
 }
 // Displays a notification bar.
-function defaultStatus(event) {
-  statusUpdate("icon16" , "Hi 20250214 09:19!!!", event);
-}
+
 
 function generatePDF(htmlContent) {
     const { jsPDF } = window.jspdf;
