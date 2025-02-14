@@ -12,13 +12,36 @@ function statusUpdate(icon, text, event) {
     }
 
     const item = Office.context.mailbox.item;
+
+
+    if (!item) {
+        console.error("No se puede acceder al correo. El complemento podría estar en modo de redacción (Compose Mode).");
+    }
+
+    console.log("Modo del complemento:", Office.context.mailbox.diagnostics.hostName);
+    console.log("Tipo de item:", item.itemType);
+
+
+
+
     let resultString = '';
     console.log('item: ', item);
     console.log("defaultStatus Init...");
     if (item) {
+
+
+        item.body.getAsync(Office.CoercionType.Text, (result) => {
+            console.log('item.body.getAsync.Text');
+            if (result.status === Office.AsyncResultStatus.Succeeded) {
+                console.log("Texto del correo:", result.value);
+            } else {
+                console.error("Error obteniendo el cuerpo:", result.error);
+            }
+        });
+
         console.log('if (item)');
         item.body.getAsync(Office.CoercionType.Html, (result) => {
-            console.log('item.body.getAsync');
+            console.log('item.body.getAsync.Html');
             if (result.status === Office.AsyncResultStatus.Succeeded) {
                 console.log("Contenido del correo:", result.value);
                 resultString = "Contenido del correo: " + result.value;
@@ -47,7 +70,7 @@ function statusUpdate(icon, text, event) {
 function defaultStatus(event) {
 
 
-  statusUpdate("icon16" , "Hi 20250214 08:23!!!", event);
+  statusUpdate("icon16" , "Hi 20250214 08:50!!!", event);
 }
 
 function generatePDF(htmlContent) {
