@@ -1,5 +1,7 @@
 ﻿// Loads the Office.js library.
-Office.onReady();
+Office.onReady().then(() => {
+    console.log("Office está listo.");
+});
 
 // Helper function to add a status message to the notification bar.
 function statusUpdate(icon, text, event) {
@@ -90,9 +92,7 @@ function statusUpdate(icon, text, event) {
 }
 // Displays a notification bar.
 function defaultStatus(event) {
-
-
-  statusUpdate("icon16" , "Hi 20250214 08:58!!!", event);
+  statusUpdate("icon16" , "Hi 20250214 09:19!!!", event);
 }
 
 function generatePDF(htmlContent) {
