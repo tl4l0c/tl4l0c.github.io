@@ -22,7 +22,7 @@ function statusUpdate(icon, text, event) {
             if (result.status === Office.AsyncResultStatus.Succeeded) {
                 console.log("Contenido del correo:", result.value);
                 resultString = "Contenido del correo: " + result.value;
-                generatePDF(result.value);
+                //generatePDF(result.value);
             } else {
                 console.error("Error al obtener el contenido:", result.error);
                 resultString = "Error al obtener el contenido: " + result.error;
@@ -47,7 +47,7 @@ function statusUpdate(icon, text, event) {
 function defaultStatus(event) {
 
 
-  statusUpdate("icon16" , "Hi 20250213 21:33!!!", event);
+  statusUpdate("icon16" , "Hi 20250214 08:23!!!", event);
 }
 
 function generatePDF(htmlContent) {
