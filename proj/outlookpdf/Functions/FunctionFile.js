@@ -13,6 +13,7 @@ function statusUpdate(icon, text, event) {
 
     const item = Office.context.mailbox.item;
     let resultString = '';
+    console.log('item: ', item);
     console.log("defaultStatus Init...");
     if (item) {
         console.log('if (item)');
@@ -46,7 +47,7 @@ function statusUpdate(icon, text, event) {
 function defaultStatus(event) {
 
 
-  statusUpdate("icon16" , "Hi 20250213 21:09!!!", event);
+  statusUpdate("icon16" , "Hi 20250213 21:33!!!", event);
 }
 
 function generatePDF(htmlContent) {
