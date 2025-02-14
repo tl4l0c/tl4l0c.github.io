@@ -27,14 +27,16 @@ function defaultStatus(event) {
                 resultString = "Contenido del correo: " + result.value;
                 generatePDF(result.value);
             } else {
-
                 console.error("Error al obtener el contenido:", result.error);
                 resultString = "Error al obtener el contenido: " + result.error;
             }
         });
     }
+    else {
+        console.log('Empty item');
+    }
 
-  statusUpdate("icon16" , "Hi 20250213 8:13!!!", event);
+  statusUpdate("icon16" , "Hi 20250213 8:19!!!", event);
 }
 
 function generatePDF2(htmlContent) {
