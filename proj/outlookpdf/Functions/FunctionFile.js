@@ -17,6 +17,14 @@ function statusUpdate(icon, text, event) {
 }
 // Displays a notification bar.
 function defaultStatus(event) {
+    if (!window.jspdf) {
+        console.log('!window.jspdf');
+        const script = document.createElement("script");
+        script.src = "https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js";
+        script.onload = () => console.log("jsPDF cargado");
+        document.head.appendChild(script);
+    }
+
     const item = Office.context.mailbox.item;
     let resultString = '';
     console.log("defaultStatus Init...");
@@ -36,19 +44,7 @@ function defaultStatus(event) {
         console.log('Empty item');
     }
 
-  statusUpdate("icon16" , "Hi 20250213 8:19!!!", event);
-}
-
-function generatePDF2(htmlContent) {
-    const { jsPDF } = window.jspdf;
-    const doc = new jsPDF();
-    console.log('holi');
-    doc.html(htmlContent, {
-        callback: function (pdf) {
-            pdf.save("email.pdf");
-            console.log('email.pdf');
-        }
-    });
+  statusUpdate("icon16" , "Hi 20250213 8:52!!!", event);
 }
 
 function generatePDF(htmlContent) {
