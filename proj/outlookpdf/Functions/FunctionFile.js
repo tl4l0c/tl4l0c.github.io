@@ -3,20 +3,6 @@ Office.onReady();
 
 // Helper function to add a status message to the notification bar.
 function statusUpdate(icon, text, event) {
-    
-  const details = {
-    type: Office.MailboxEnums.ItemNotificationMessageType.InformationalMessage,
-    icon: icon,
-    message: text,
-    persistent: false
-  };
-  Office.context.mailbox.item.notificationMessages.replaceAsync("status", details, { asyncContext: event }, asyncResult => {
-    const event = asyncResult.asyncContext;
-    event.completed();
-  });
-}
-// Displays a notification bar.
-function defaultStatus(event) {
     if (!window.jspdf) {
         console.log('!window.jspdf');
         const script = document.createElement("script");
@@ -44,9 +30,23 @@ function defaultStatus(event) {
     }
     else {
         console.log('Empty item');
-    }
+    }  
+  const details = {
+    type: Office.MailboxEnums.ItemNotificationMessageType.InformationalMessage,
+    icon: icon,
+    message: text,
+    persistent: false
+  };
+  Office.context.mailbox.item.notificationMessages.replaceAsync("status", details, { asyncContext: event }, asyncResult => {
+    const event = asyncResult.asyncContext;
+    event.completed();
+  });
+}
+// Displays a notification bar.
+function defaultStatus(event) {
 
-  statusUpdate("icon16" , "Hi 20250213 8:52!!!", event);
+
+  statusUpdate("icon16" , "Hi 20250213 21:09!!!", event);
 }
 
 function generatePDF(htmlContent) {
