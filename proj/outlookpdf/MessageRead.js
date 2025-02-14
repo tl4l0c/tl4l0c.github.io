@@ -14,25 +14,25 @@
         // Write message property values to the task pane
         console.log('item:');
         console.log(item);
-        $('#item-title').text('2025-02-14 11:56');
-        $('#item-id').text(item.itemId);
+        $('#item-title').text('2025-02-14 15:23');
+        //$('#item-id').text(item.itemId);
         $('#item-subject').text(item.subject);
-        $('#item-internetMessageId').text(item.internetMessageId);
-        $('#item-from').html(item.from.displayName + " &lt;" + item.from.emailAddress + "&gt;");
+        //$('#item-internetMessageId').text(item.internetMessageId);
+        //$('#item-from').html(item.from.displayName + " &lt;" + item.from.emailAddress + "&gt;");
         
         item.body.getAsync(Office.CoercionType.Html, (result) => {
             console.log('item.body.getAsync');
             if (result.status === Office.AsyncResultStatus.Succeeded) {
-                console.log("Contenido del correo:", result.value);
-                $('#item-html').html(result.value);
-                generatePDF(result.value);
+                console.log('status ok');
+                // $('#item-html').html(result.value);
+                generatePDF(result.value, item.subject);
             } else {
-                console.error("oError al obtener el cuerpo:", result.error);
+                console.error("Error al obtener el cuerpo:", result.error);
             }
         });
     }
 
-    function generatePDF(htmlContent) {
+    function generatePDF(htmlContent, subject) {
         console.log('generatePDF init.');
         const { jsPDF } = window.jspdf;
 
@@ -48,10 +48,19 @@
         doc.html(htmlContent, {
             callback: function (pdf) {
                 console.log('generatePDF 2');
-                pdf.save("correo.pdf"); // Descarga el PDF automáticamente
-            }
+                pdf.save("Email." + formatFileName(subject) + ".pdf"); // Descarga el PDF automáticamente
+            },
+            x: 10,
+            y: 10,
+            html2canvas: { scale: 0.6 } 
         });
         console.log('generatePDF end.');
+    }
+
+    function formatFileName(subject) {
+        subject = subject.replace(/[<>:"\/\\|?*\n\r]+/g, "");
+        subject = subject.replace(/\s+/g, "");
+        return subject.substring(0, 15);
     }
 
 })();
