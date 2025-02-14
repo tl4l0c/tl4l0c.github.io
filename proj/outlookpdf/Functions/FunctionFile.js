@@ -29,7 +29,9 @@ function defaultStatus(event) {
     let resultString = '';
     console.log("defaultStatus Init...");
     if (item) {
+        console.log('if (item)');
         item.body.getAsync(Office.CoercionType.Html, (result) => {
+            console.log('item.body.getAsync');
             if (result.status === Office.AsyncResultStatus.Succeeded) {
                 console.log("Contenido del correo:", result.value);
                 resultString = "Contenido del correo: " + result.value;
