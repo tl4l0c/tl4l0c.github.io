@@ -17,5 +17,6 @@
         $('#item-internetMessageId').text(item.internetMessageId);
         $('#item-from').html(item.from.displayName + " &lt;" + item.from.emailAddress + "&gt;");
         $('#item-html').html(item.html);
+        console.log(item);
     }
 })();
