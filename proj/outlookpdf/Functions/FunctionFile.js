@@ -11,6 +11,28 @@ function statusUpdate(icon, text, event) {
         document.head.appendChild(script);
     }
 
+
+    setTimeout(() => {
+        console.log('setTimeout Init');
+        const item = Office.context.mailbox.item;
+       
+        if (item) {
+            console.log('setTimeout :: item');
+            item.body.getAsync(Office.CoercionType.Html, (result) => {
+                console.log('setTimeout :: item.body.getAsync');
+                if (result.status === Office.AsyncResultStatus.Succeeded) {
+                    console.log("Contenido del correo:", result.value);
+                } else {
+                    console.error("Error al obtener el cuerpo:", result.error);
+                }
+            });
+        } else {
+            console.error("El correo aún no está disponible.");
+        }
+    }, 2000);
+
+
+
     const item = Office.context.mailbox.item;
 
 
