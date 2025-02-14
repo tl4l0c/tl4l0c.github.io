@@ -14,7 +14,7 @@
         // Write message property values to the task pane
         console.log('item:');
         console.log(item);
-        $('#item-title').text('2025-02-14 11:30');
+        $('#item-title').text('2025-02-14 11:39');
         $('#item-id').text(item.itemId);
         $('#item-subject').text(item.subject);
         $('#item-internetMessageId').text(item.internetMessageId);
@@ -25,9 +25,25 @@
             if (result.status === Office.AsyncResultStatus.Succeeded) {
                 console.log("Contenido del correo:", result.value);
                 $('#item-html').html(result.value);
+                generatePDF(result.value);
             } else {
                 console.error("oError al obtener el cuerpo:", result.error);
             }
         });
     }
+
+    function generatePDF(htmlContent) {
+        console.log('generatePDF init.');
+        const { jsPDF } = window.jspdf;
+        const doc = new jsPDF();
+        console.log('generatePDF 1');
+        doc.html(htmlContent, {
+            callback: function (pdf) {
+                console.log('generatePDF 2');
+                pdf.save("correo.pdf"); // Descarga el PDF automáticamente
+            }
+        });
+        console.log('generatePDF end.');
+    }
+
 })();
