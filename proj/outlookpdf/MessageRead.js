@@ -14,7 +14,7 @@
         // Write message property values to the task pane
         console.log('item:');
         console.log(item);
-        $('#item-title').text('2025-02-14 15:23');
+        $('#item-title').text('2025-02-14 15:58');
         //$('#item-id').text(item.itemId);
         $('#item-subject').text(item.subject);
         //$('#item-internetMessageId').text(item.internetMessageId);
@@ -24,6 +24,7 @@
             console.log('item.body.getAsync');
             if (result.status === Office.AsyncResultStatus.Succeeded) {
                 console.log('status ok');
+                console.log('body:', result.value);
                 // $('#item-html').html(result.value);
                 generatePDF(result.value, item.subject);
             } else {
@@ -60,7 +61,7 @@
     function formatFileName(subject) {
         subject = subject.replace(/[<>:"\/\\|?*\n\r]+/g, "");
         subject = subject.replace(/\s+/g, "");
-        return subject.substring(0, 15);
+        return subject.substring(0, 30);
     }
 
 })();
