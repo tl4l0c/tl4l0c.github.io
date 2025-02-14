@@ -14,7 +14,7 @@
         // Write message property values to the task pane
         console.log('item:');
         console.log(item);
-        $('#item-title').text('2025-02-14 11:49');
+        $('#item-title').text('2025-02-14 11:56');
         $('#item-id').text(item.itemId);
         $('#item-subject').text(item.subject);
         $('#item-internetMessageId').text(item.internetMessageId);
