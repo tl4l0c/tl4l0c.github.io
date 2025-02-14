@@ -3,21 +3,7 @@ Office.onReady();
 
 // Helper function to add a status message to the notification bar.
 function statusUpdate(icon, text, event) {
-    const item = Office.context.mailbox.item;
-    let result = '';
-    if (item) {
-        item.body.getAsync(Office.CoercionType.Html, (result) => {
-            if (result.status === Office.AsyncResultStatus.Succeeded) {
-                console.log("Contenido del correo:", result.value);
-                result = "Contenido del correo: " + result.value;
-                generatePDF(result.value);
-            } else {
-                
-                console.error("Error al obtener el contenido:", result.error);
-                result = "Error al obtener el contenido: " + result.error;
-            }
-        });
-    }
+    
   const details = {
     type: Office.MailboxEnums.ItemNotificationMessageType.InformationalMessage,
     icon: icon,
@@ -31,7 +17,24 @@ function statusUpdate(icon, text, event) {
 }
 // Displays a notification bar.
 function defaultStatus(event) {
-  statusUpdate("icon16" , "Hi 9:43!!!", event);
+    const item = Office.context.mailbox.item;
+    let resultString = '';
+    console.log("defaultStatus Init...");
+    if (item) {
+        item.body.getAsync(Office.CoercionType.Html, (result) => {
+            if (result.status === Office.AsyncResultStatus.Succeeded) {
+                console.log("Contenido del correo:", result.value);
+                resultString = "Contenido del correo: " + result.value;
+                generatePDF(result.value);
+            } else {
+
+                console.error("Error al obtener el contenido:", result.error);
+                resultString = "Error al obtener el contenido: " + result.error;
+            }
+        });
+    }
+
+  statusUpdate("icon16" , "Hi 20250213 8:13!!!", event);
 }
 
 function generatePDF2(htmlContent) {
