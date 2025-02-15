@@ -14,7 +14,7 @@
         // Write message property values to the task pane
         console.log('item:');
         console.log(item);
-        $('#item-title').text('2025-02-14 16:56');
+        $('#item-title').text('2025-02-14 16:59');
         //$('#item-id').text(item.itemId);
         $('#item-subject').text(item.subject);
         //$('#item-internetMessageId').text(item.internetMessageId);
@@ -53,7 +53,7 @@
         console.log('generatePDF 1');
 
         const outlookHtml = `
-                <div style="width: 700px; margin: 0 auto;">
+                <div style="width: 800px; margin: 10px auto;">
                      ${htmlContent}
                 </div>
             `;
