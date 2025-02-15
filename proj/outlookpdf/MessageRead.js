@@ -14,7 +14,7 @@
         // Write message property values to the task pane
         console.log('item:');
         console.log(item);
-        $('#item-title').text('2025-02-14 16:12');
+        $('#item-title').text('2025-02-14 16:15');
         //$('#item-id').text(item.itemId);
         $('#item-subject').text(item.subject);
         //$('#item-internetMessageId').text(item.internetMessageId);
@@ -62,9 +62,9 @@
                 console.log('generatePDF 2');
                 pdf.save("Email." + formatFileName(subject) + ".pdf"); // Descarga el PDF automáticamente
             },
-            x: 10,
-            y: 10,
-            html2canvas: { scale: 0.4 } 
+            //x: 10,
+            //y: 10,
+            html2canvas: { scale: 0.2 } 
         });
         console.log('generatePDF end.');
     }
