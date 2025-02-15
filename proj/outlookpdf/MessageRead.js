@@ -14,7 +14,7 @@
         // Write message property values to the task pane
         console.log('item:');
         console.log(item);
-        $('#item-title').text('2025-02-14 16:15');
+        $('#item-title').text('2025-02-14 16:32');
         //$('#item-id').text(item.itemId);
         $('#item-subject').text(item.subject);
         //$('#item-internetMessageId').text(item.internetMessageId);
@@ -44,27 +44,31 @@
             console.error("DOMPurify no está cargado.");
         }
 
-        const doc = new jsPDF();
+        const doc = new jsPDF({
+            orientation: "portrait",
+            unit: "px",
+            format: "a4"
+        }
+        );
         console.log('generatePDF 1');
 
         const outlookHtml = `
-                <style>
-                    body, table, td {
-                        font-family: 'Arial', sans-serif !important;
-                        font-size: 8px !important;
-                    }
-                </style>
-                ${htmlContent} 
+                <div style="width=800px;">
+                     ${htmlContent}
+                </div>
             `;
 
-        doc.html(htmlContent, {
+        doc.html(outlookHtml, {
             callback: function (pdf) {
                 console.log('generatePDF 2');
                 pdf.save("Email." + formatFileName(subject) + ".pdf"); // Descarga el PDF automáticamente
             },
-            //x: 10,
-            //y: 10,
-            html2canvas: { scale: 0.2 } 
+            x: 10,
+            y: 10,
+            html2canvas: {
+                scale: 0.2,
+                width: 800
+            } 
         });
         console.log('generatePDF end.');
     }
