@@ -14,7 +14,7 @@
         // Write message property values to the task pane
         console.log('item:');
         console.log(item);
-        $('#item-title').text('2025-02-14 16:32');
+        $('#item-title').text('2025-02-14 16:36');
         //$('#item-id').text(item.itemId);
         $('#item-subject').text(item.subject);
         //$('#item-internetMessageId').text(item.internetMessageId);
@@ -66,7 +66,7 @@
             x: 10,
             y: 10,
             html2canvas: {
-                scale: 0.2,
+                //scale: 0.2,
                 width: 800
             } 
         });
