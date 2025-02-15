@@ -14,7 +14,7 @@
         // Write message property values to the task pane
         console.log('item:');
         console.log(item);
-        $('#item-title').text('2025-02-14 16:59');
+        $('#item-title').text('2025-02-14 17:12');
         //$('#item-id').text(item.itemId);
         $('#item-subject').text(item.subject);
         //$('#item-internetMessageId').text(item.internetMessageId);
@@ -67,7 +67,8 @@
             y: 10,
             html2canvas: {
                 scale: 0.5,
-                width: 800
+                width: 800,
+                useCORS: true
             } 
         });
         console.log('generatePDF end.');
