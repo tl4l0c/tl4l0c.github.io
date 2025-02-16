@@ -14,7 +14,7 @@
         // Write message property values to the task pane
         console.log('item:');
         console.log(item);
-        $('#item-title').text('2025-02-15 20:10');
+        $('#item-title').text('2025-02-15 20:17');
         //$('#item-id').text(item.itemId);
         $('#item-subject').text(item.subject);
         //$('#item-internetMessageId').text(item.internetMessageId);
@@ -54,7 +54,7 @@
 
         let outlookHtml = ``;
 
-        loadImageToBase64("https://cdn.graph.office.net/prod/media/shared/Microsoft_Logo_White.png", function (base64Image) {
+        downloadImageAsBase64("https://cdn.graph.office.net/prod/media/shared/Microsoft_Logo_White.png", function (base64Image) {
             console.log(base64Image); // Reemplaza la imagen con su versión Base64
             outlookHtml = `
                 <div style="width: 800px; margin: 10px auto;">
@@ -63,6 +63,7 @@
                 </div>
             `;
         });
+
 
         doc.html(outlookHtml, {
             callback: function (pdf) {
@@ -80,21 +81,17 @@
         console.log('generatePDF end.');
     }
 
-    function loadImageToBase64(url, callback) {
-        const img = new Image();
-        img.crossOrigin = "Anonymous";
-        img.onload = function () {
-            const canvas = document.createElement("canvas");
-            canvas.width = img.width;
-            canvas.height = img.height;
-            const ctx = canvas.getContext("2d");
-            ctx.drawImage(img, 0, 0);
-            callback(canvas.toDataURL("image/png"));
-        };
-        img.onerror = function () {
-            console.error("No se pudo cargar la imagen:", url);
-        };
-        img.src = url;
+    function downloadImageAsBase64(url, callback) {
+        fetch(url)
+            .then(response => response.blob()) // Convierte la imagen en un Blob
+            .then(blob => {
+                const reader = new FileReader();
+                reader.onloadend = function () {
+                    callback(reader.result); // Devuelve la imagen en formato Base64
+                };
+                reader.readAsDataURL(blob);
+            })
+            .catch(error => console.error("Error descargando la imagen:", error));
     }
 
     function formatFileName(subject) {
