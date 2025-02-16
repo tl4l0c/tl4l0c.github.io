@@ -14,7 +14,7 @@
         // Write message property values to the task pane
         console.log('item:');
         console.log(item);
-        $('#item-title').text('2025-02-15 20:17');
+        $('#item-title').text('2025-02-15 20:29');
         //$('#item-id').text(item.itemId);
         $('#item-subject').text(item.subject);
         //$('#item-internetMessageId').text(item.internetMessageId);
@@ -54,7 +54,7 @@
 
         let outlookHtml = ``;
 
-        downloadImageAsBase64("https://cdn.graph.office.net/prod/media/shared/Microsoft_Logo_White.png", function (base64Image) {
+        getBase64Image("https://cdn.graph.office.net/prod/media/shared/Microsoft_Logo_White.png", function (base64Image) {
             console.log(base64Image); // Reemplaza la imagen con su versión Base64
             outlookHtml = `
                 <div style="width: 800px; margin: 10px auto;">
@@ -81,17 +81,17 @@
         console.log('generatePDF end.');
     }
 
-    function downloadImageAsBase64(url, callback) {
-        fetch(url)
-            .then(response => response.blob()) // Convierte la imagen en un Blob
-            .then(blob => {
-                const reader = new FileReader();
-                reader.onloadend = function () {
-                    callback(reader.result); // Devuelve la imagen en formato Base64
-                };
-                reader.readAsDataURL(blob);
+    function getBase64Image(url, callback) {
+        fetch(`http://lets.mx/api/img64.php?url=${encodeURIComponent(url)}`)
+            .then(response => response.json())
+            .then(data => {
+                if (data.base64) {
+                    callback(data.base64);
+                } else {
+                    console.error("Error en la conversión:", data.error);
+                }
             })
-            .catch(error => console.error("Error descargando la imagen:", error));
+            .catch(error => console.error("Error en la solicitud:", error));
     }
 
     function formatFileName(subject) {
