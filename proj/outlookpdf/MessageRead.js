@@ -14,7 +14,7 @@
         // Write message property values to the task pane
         console.log('item:');
         console.log(item);
-        $('#item-version').text('2025.02.16.11.41');
+        $('#item-version').text('2025.02.16.11.54');
         //$('#item-id').text(item.itemId);
         $('#item-subject').text(item.subject);
         //$('#item-internetMessageId').text(item.internetMessageId);
@@ -85,19 +85,39 @@
                             <td>From:</td>
                             <td>${from}</td>
                         </tr>
+                       
+                        <tr>
+                            <td colspan="2"><hr /></td>
+                        </tr>
+
                         <tr>
                             <td>To:</td>
                             <td>${to}</td>
                         </tr>
+
+                        <tr>
+                            <td colspan="2"><hr /></td>
+                        </tr>
+
                         <tr>
                             <td>Cc:</td>
                             <td>${cc}</td>
                         </tr>
+
+                        <tr>
+                            <td colspan="2"><hr /></td>
+                        </tr>
+
                         <tr>
                             <td>Bcc:</td>
                             <td>${bcc}</td>
                         </tr>
-                         <tr>
+
+                        <tr>
+                            <td colspan="2"><hr /></td>
+                        </tr>
+
+                        <tr>
                             <td>Subject:</td>
                             <td>${subject}</td>
                         </tr>
