@@ -14,21 +14,34 @@
         // Write message property values to the task pane
         console.log('item:');
         console.log(item);
-        $('#item-version').text('2025.02.16.11.18');
+        $('#item-version').text('2025.02.16.11.41');
         //$('#item-id').text(item.itemId);
         $('#item-subject').text(item.subject);
         //$('#item-internetMessageId').text(item.internetMessageId);
         //$('#item-from').html(item.from.displayName + " &lt;" + item.from.emailAddress + "&gt;");
 
         let from = item.from.displayName + " &lt;" + item.from.emailAddress + "&gt;";
-        let to = item.to.displayName + " &lt;" + item.to.emailAddress + "&gt;";
+        let to = '';
         let cc = '';
         let bcc = '';
-        if (item.cc.length != 0) {
-            cc = item.cc.displayName + " &lt;" + item.cc.emailAddress + "&gt;";
+
+        let totalTo = item.to.length;
+        let totalCc = item.cc.length;
+        let totalBcc = item.bcc.length;
+
+        for (let toIdx = 0; toIdx < totalTo; toIdx++) {
+            to += item.to[toIdx].displayName + " &lt;" + item.to[toIdx].emailAddress + "&gt; <br />";
         }
-        if (item.bcc.length != 0) {
-            bcc = item.bcc.displayName + " &lt;" + item.bcc.emailAddress + "&gt;";
+
+        if (totalCc != 0) {
+            for (let toIdx = 0; toIdx < totalCc; toIdx++) {
+                cc += item.cc[toIdx].displayName + " &lt;" + item.cc[toIdx].emailAddress + "&gt; <br />";
+            }
+        }
+        if (totalBcc != 0) {
+            for (let toIdx = 0; toIdx < totalBcc; toIdx++) {
+                bcc += item.bcc[toIdx].displayName + " &lt;" + item.bcc[toIdx].emailAddress + "&gt; <br />";
+            }
         }
         
         item.body.getAsync(Office.CoercionType.Html, (result) => {
@@ -77,11 +90,11 @@
                             <td>${to}</td>
                         </tr>
                         <tr>
-                            <td>cc:</td>
+                            <td>Cc:</td>
                             <td>${cc}</td>
                         </tr>
                         <tr>
-                            <td>bcc:</td>
+                            <td>Bcc:</td>
                             <td>${bcc}</td>
                         </tr>
                          <tr>
