@@ -14,7 +14,7 @@
         // Write message property values to the task pane
         console.log('item:');
         console.log(item);
-        $('#item-title').text('2025-02-14 17:12');
+        $('#item-title').text('2025-02-15 19:47');
         //$('#item-id').text(item.itemId);
         $('#item-subject').text(item.subject);
         //$('#item-internetMessageId').text(item.internetMessageId);
@@ -48,8 +48,13 @@
             orientation: "portrait",
             unit: "px",
             format: "a4"
-        }
-        );
+        });
+
+        const imgData = canvas.toDataURL("image/png");
+        doc.addImage(imgData, "PNG", 10, 10);
+        doc.addImage("https://cdn.graph.office.net/prod/media/shared/Microsoft_Logo_White.png", "PNG", 10, 50, 100, 50); // Imagen agregada manualmente
+
+
         console.log('generatePDF 1');
 
         const outlookHtml = `
