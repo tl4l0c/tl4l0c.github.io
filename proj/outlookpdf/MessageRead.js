@@ -14,7 +14,7 @@
         // Write message property values to the task pane
         console.log('item:');
         console.log(item);
-        $('#item-version').text('2025.02.17.11.21');
+        $('#item-version').text('2025.02.17.11.24');
         //$('#item-id').text(item.itemId);
         $('#item-subject').text(item.subject);
         //$('#item-internetMessageId').text(item.internetMessageId);
@@ -57,6 +57,22 @@
                 console.error("Error al obtener el cuerpo:", result.error);
             }
         });
+    }
+
+    function getAttachments(callback) {
+        const item = Office.context.mailbox.item;
+
+        if (!item || !item.attachments || item.attachments.length === 0) {
+            console.log("No hay archivos adjuntos.");
+            callback([]); // Llamar callback con un array vacío
+            return;
+        }
+
+        // Filtrar solo PDFs
+        const attachments = item.attachments.filter(att => att.name.toLowerCase().endsWith(".pdf"));
+
+        console.log("Archivos adjuntos encontrados:", attachments);
+        callback(attachments);
     }
 
     async function generatePDF(htmlContent, subject, from, to, cc, bcc, attachments) {
