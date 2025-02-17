@@ -14,7 +14,7 @@
         // Write message property values to the task pane
         console.log('item:');
         console.log(item);
-        $('#item-version').text('2025.02.17.11.24');
+        $('#item-version').text('2025.02.17.12.51');
         //$('#item-id').text(item.itemId);
         $('#item-subject').text(item.subject);
         //$('#item-internetMessageId').text(item.internetMessageId);
@@ -59,21 +59,97 @@
         });
     }
 
+    function getAuthToken(callback) {
+        Office.context.mailbox.getCallbackTokenAsync({ isRest: true }, function (result) {
+            if (result.status === "succeeded") {
+                callback(result.value); // Token obtenido
+            } else {
+                console.error("Error al obtener el token de autenticación:", result.error);
+                callback(null);
+            }
+        });
+    }
+
+    function downloadAttachment(attachment, token, callback) {
+        const baseUrl = Office.context.mailbox.restUrl;
+        const attachmentUrl = `${baseUrl}/v2.0/me/messages/${Office.context.mailbox.item.itemId}/attachments/${attachment.id}/$value`;
+
+        fetch(attachmentUrl, {
+            method: "GET",
+            headers: {
+                "Authorization": `Bearer ${token}`,
+                "Accept": "application/octet-stream"
+            }
+        })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`Error al descargar el archivo: ${response.status}`);
+                }
+                return response.arrayBuffer();
+            })
+            .then(arrayBuffer => {
+                callback(arrayBuffer);
+            })
+            .catch(error => {
+                console.error("Error descargando el adjunto:", error);
+                callback(null);
+            });
+    }
+
+
     function getAttachments(callback) {
         const item = Office.context.mailbox.item;
 
         if (!item || !item.attachments || item.attachments.length === 0) {
             console.log("No hay archivos adjuntos.");
-            callback([]); // Llamar callback con un array vacío
+            callback([]); // Llamar callback con un array vacío para evitar errores
             return;
         }
 
-        // Filtrar solo PDFs
+        // Filtrar solo archivos PDF
         const attachments = item.attachments.filter(att => att.name.toLowerCase().endsWith(".pdf"));
 
-        console.log("Archivos adjuntos encontrados:", attachments);
-        callback(attachments);
+        if (attachments.length === 0) {
+            console.log("No hay archivos PDF adjuntos.");
+            callback([]); // No hay PDFs, continuar con la generación del PDF sin adjuntos
+            return;
+        }
+
+        console.log("Archivos PDF adjuntos encontrados:", attachments);
+
+        // Obtener el token de autenticación para descargar los archivos
+        Office.context.mailbox.getCallbackTokenAsync({ isRest: true }, function (result) {
+            if (result.status !== "succeeded") {
+                console.error("Error al obtener el token de autenticación:", result.error);
+                callback([]); // No se puede descargar nada sin token
+                return;
+            }
+
+            const token = result.value;
+            const downloadedAttachments = [];
+
+            // Descargar cada PDF adjunto
+            let count = 0;
+            attachments.forEach(attachment => {
+                downloadAttachment(attachment, token, function (pdfBytes) {
+                    if (pdfBytes) {
+                        downloadedAttachments.push({
+                            name: attachment.name,
+                            data: pdfBytes
+                        });
+                    }
+
+                    count++;
+
+                    // Si ya descargamos todos los adjuntos, llamamos al callback
+                    if (count === attachments.length) {
+                        callback(downloadedAttachments);
+                    }
+                });
+            });
+        });
     }
+
 
     async function generatePDF(htmlContent, subject, from, to, cc, bcc, attachments) {
         console.log('generatePDF init.');
@@ -149,58 +225,59 @@
 
         return new Promise((resolve) => {
             doc.html(outlookHtml, {
-                callback: async function (pdf) { // Hacer esta función async
+                callback: async function (pdf) {
                     console.log('generatePDF 2');
                     const pdfBytes = pdf.output("arraybuffer");
 
-                    // Fusionar PDFs
-                    const mergedPdfBytes = await mergePDFs(pdfBytes, attachments);
+                    getAuthToken(async (token) => {
+                        if (!token) {
+                            console.error("No se pudo obtener el token de autenticación.");
+                            return;
+                        }
 
-                    // Descargar el PDF final
-                    const blob = new Blob([mergedPdfBytes], { type: "application/pdf" });
-                    const url = URL.createObjectURL(blob);
-                    const a = document.createElement("a");
-                    a.href = url;
-                    a.download = `Email_${formatFileName(subject)}.pdf`;
-                    document.body.appendChild(a);
-                    a.click();
-                    document.body.removeChild(a);
+                        const mergedPdfBytes = await mergePDFs(pdfBytes, attachments, token);
 
-                    resolve();
+                        const blob = new Blob([mergedPdfBytes], { type: "application/pdf" });
+                        const url = URL.createObjectURL(blob);
+                        const a = document.createElement("a");
+                        a.href = url;
+                        a.download = `Email_${formatFileName(subject)}.pdf`;
+                        document.body.appendChild(a);
+                        a.click();
+                        document.body.removeChild(a);
+
+                        resolve();
+                    });
                 },
                 x: 10,
                 y: 10,
-                html2canvas: {
-                    scale: 0.5,
-                    width: 800,
-                    useCORS: true
-                }
+                html2canvas: { scale: 0.5, width: 800, useCORS: true }
             });
         });
     }
 
 
-    async function mergePDFs(emailPdfBytes, attachments) {
+    async function mergePDFs(emailPdfBytes, attachments, token) {
         console.log("Iniciando combinación de PDFs...");
 
         if (typeof PDFLib === "undefined") {
             console.error("Error: PDFLib no está definido.");
-            return emailPdfBytes; // Devuelve el PDF base si PDFLib no está disponible
+            return emailPdfBytes;
         }
 
         const mergedPdf = await PDFLib.PDFDocument.create();
-
-        // Agregar el PDF del correo
         const mainPdf = await PDFLib.PDFDocument.load(emailPdfBytes);
         const copiedPages = await mergedPdf.copyPages(mainPdf, mainPdf.getPageIndices());
         copiedPages.forEach((page) => mergedPdf.addPage(page));
 
-        // Descargar y agregar PDFs adjuntos
         for (const attachment of attachments) {
             if (attachment.name.endsWith(".pdf")) {
                 console.log(`Descargando: ${attachment.name}`);
 
-                const pdfBytes = await downloadAttachmentAsBinary(attachment);
+                const pdfBytes = await new Promise((resolve) => {
+                    downloadAttachment(attachment, token, resolve);
+                });
+
                 if (pdfBytes) {
                     try {
                         const attachmentPdf = await PDFLib.PDFDocument.load(pdfBytes);
@@ -217,6 +294,7 @@
 
         return await mergedPdf.save();
     }
+
 
     async function downloadAttachmentAsBinary(attachment) {
         return new Promise((resolve, reject) => {
@@ -248,6 +326,7 @@
             });
         });
     }
+
 
     function generatePDF_onlypdf(htmlContent, subject, from, to, cc, bcc) {
         console.log('generatePDF init.');
@@ -347,6 +426,7 @@
         console.log('generatePDF end.');
     }
 
+
     function getBase64Image(url, callback) {
         fetch(`http://lets.mx/api/img64.php?url=${encodeURIComponent(url)}`)
             .then(response => response.json())
@@ -359,6 +439,7 @@
             })
             .catch(error => console.error("Error en la solicitud:", error));
     }
+
 
     function formatFileName(subject) {
         subject = subject.replace(/[<>:"\/\\|?*\n\r]+/g, "");
