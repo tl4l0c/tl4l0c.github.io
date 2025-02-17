@@ -14,7 +14,7 @@
         // Write message property values to the task pane
         console.log('item:');
         console.log(item);
-        $('#item-version').text('2025.02.17.11.07');
+        $('#item-version').text('2025.02.17.11.17');
         //$('#item-id').text(item.itemId);
         $('#item-subject').text(item.subject);
         //$('#item-internetMessageId').text(item.internetMessageId);
@@ -50,14 +50,16 @@
                 console.log('status ok');
                 console.log('body:', result.value);
                 // $('#item-html').html(result.value);
-                generatePDF(result.value, item.subject, from, to, cc, bcc);
+                getAttachments((attachments) => {
+                    generatePDF((result.value, item.subject, from, to, cc, bcc, attachments);
+                });
             } else {
                 console.error("Error al obtener el cuerpo:", result.error);
             }
         });
     }
 
-    async function generatePDF(htmlContent, subject, from, to, cc, bcc) {
+    async function generatePDF(htmlContent, subject, from, to, cc, bcc, attachments) {
         console.log('generatePDF init.');
         const { jsPDF } = window.jspdf;
 
