@@ -14,7 +14,7 @@
         // Write message property values to the task pane
         console.log('item:');
         console.log(item);
-        $('#item-version').text('2025.02.17.12.51');
+        $('#item-version').text('2025.02.17.17.39');
         //$('#item-id').text(item.itemId);
         $('#item-subject').text(item.subject);
         //$('#item-internetMessageId').text(item.internetMessageId);
@@ -73,7 +73,8 @@
     function downloadAttachment(attachment, token, callback) {
         const baseUrl = Office.context.mailbox.restUrl;
         const attachmentUrl = `${baseUrl}/v2.0/me/messages/${Office.context.mailbox.item.itemId}/attachments/${attachment.id}/$value`;
-
+        console.log('baseUrl:', baseUrl);
+        console.log('attachmentUrl:', attachmentUrl);
         fetch(attachmentUrl, {
             method: "GET",
             headers: {
