@@ -14,7 +14,7 @@
         // Write message property values to the task pane
         console.log('item:');
         console.log(item);
-        $('#item-version').text('2025.02.17.10.53');
+        $('#item-version').text('2025.02.17.10.57');
         //$('#item-id').text(item.itemId);
         $('#item-subject').text(item.subject);
         //$('#item-internetMessageId').text(item.internetMessageId);
@@ -57,7 +57,7 @@
         });
     }
 
-    function generatePDF(htmlContent, subject, from, to, cc, bcc) {
+    async function generatePDF(htmlContent, subject, from, to, cc, bcc) {
         console.log('generatePDF init.');
         const { jsPDF } = window.jspdf;
 
