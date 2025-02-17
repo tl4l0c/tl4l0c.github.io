@@ -14,7 +14,7 @@
         // Write message property values to the task pane
         console.log('item:');
         console.log(item);
-        $('#item-version').text('2025.02.16.11.54');
+        $('#item-version').text('2025.02.17.10.53');
         //$('#item-id').text(item.itemId);
         $('#item-subject').text(item.subject);
         //$('#item-internetMessageId').text(item.internetMessageId);
@@ -58,6 +58,124 @@
     }
 
     function generatePDF(htmlContent, subject, from, to, cc, bcc) {
+        console.log('generatePDF init.');
+        const { jsPDF } = window.jspdf;
+
+        if (!window.jspdf) {
+            console.error("jsPDF no está cargado.");
+        }
+        if (!window.DOMPurify) {
+            console.error("DOMPurify no está cargado.");
+        }
+
+        const doc = new jsPDF({
+            orientation: "portrait",
+            unit: "px",
+            format: "a4"
+        });
+
+        console.log('generatePDF 1');
+
+        let outlookHtml = ``;
+
+        outlookHtml = `
+                <div style="width: 800px; margin: 10px auto;">
+                    <table>
+                        <tr>
+                            <td>From:</td>
+                            <td>${from}</td>
+                        </tr>
+                       
+                        <tr>
+                            <td colspan="2"><hr /></td>
+                        </tr>
+
+                        <tr>
+                            <td>To:</td>
+                            <td>${to}</td>
+                        </tr>
+
+                        <tr>
+                            <td colspan="2"><hr /></td>
+                        </tr>
+
+                        <tr>
+                            <td>Cc:</td>
+                            <td>${cc}</td>
+                        </tr>
+
+                        <tr>
+                            <td colspan="2"><hr /></td>
+                        </tr>
+
+                        <tr>
+                            <td>Bcc:</td>
+                            <td>${bcc}</td>
+                        </tr>
+
+                        <tr>
+                            <td colspan="2"><hr /></td>
+                        </tr>
+
+                        <tr>
+                            <td>Subject:</td>
+                            <td>${subject}</td>
+                        </tr>
+                    </table>
+
+                     ${htmlContent}
+                </div>
+            `;
+
+        doc.html(outlookHtml, {
+            callback: function (pdf) {
+                console.log('generatePDF 2');
+                const pdfBytes = pdf.output("arraybuffer");
+
+                const mergedPdf = await PDFLib.PDFDocument.create();
+
+                const mainPdf = await PDFLib.PDFDocument.load(pdfBytes);
+                const copiedPages = await mergedPdf.copyPages(mainPdf, mainPdf.getPageIndices());
+                copiedPages.forEach((page) => mergedPdf.addPage(page));
+
+                for (const attachment of attachments) {
+                    if (attachment.name.endsWith(".pdf")) {
+                        console.log(`Descargando: ${attachment.name}`);
+
+                        const pdfBytes = await downloadAttachmentAsBinary(attachment);
+                        if (pdfBytes) {
+                            const attachmentPdf = await PDFLib.PDFDocument.load(pdfBytes);
+                            const pages = await mergedPdf.copyPages(attachmentPdf, attachmentPdf.getPageIndices());
+                            pages.forEach((page) => mergedPdf.addPage(page));
+                        }
+                    }
+                }
+
+                const finalPdfBytes = await mergedPdf.save();
+
+                const blob = new Blob([finalPdfBytes], { type: "application/pdf" });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement("a");
+                a.href = url;
+                a.download = `Email_${formatFileName(subject)}.pdf`;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+
+            },
+            x: 10,
+            y: 10,
+            html2canvas: {
+                scale: 0.5,
+                width: 800,
+                useCORS: true
+            }
+        });
+        console.log('generatePDF end.');
+    }
+
+
+    function generatePDF_onlypdf(htmlContent, subject, from, to, cc, bcc) {
         console.log('generatePDF init.');
         const { jsPDF } = window.jspdf;
 
