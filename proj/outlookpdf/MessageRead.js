@@ -14,7 +14,7 @@
         // Write message property values to the task pane
         console.log('item:');
         console.log(item);
-        $('#item-version').text('2025.02.17.10.57');
+        $('#item-version').text('2025.02.17.11.07');
         //$('#item-id').text(item.itemId);
         $('#item-subject').text(item.subject);
         //$('#item-internetMessageId').text(item.internetMessageId);
@@ -127,53 +127,109 @@
                 </div>
             `;
 
-        doc.html(outlookHtml, {
-            callback: function (pdf) {
-                console.log('generatePDF 2');
-                const pdfBytes = pdf.output("arraybuffer");
-
-                const mergedPdf = await PDFLib.PDFDocument.create();
-
-                const mainPdf = await PDFLib.PDFDocument.load(pdfBytes);
-                const copiedPages = await mergedPdf.copyPages(mainPdf, mainPdf.getPageIndices());
-                copiedPages.forEach((page) => mergedPdf.addPage(page));
-
-                for (const attachment of attachments) {
-                    if (attachment.name.endsWith(".pdf")) {
-                        console.log(`Descargando: ${attachment.name}`);
-
-                        const pdfBytes = await downloadAttachmentAsBinary(attachment);
-                        if (pdfBytes) {
-                            const attachmentPdf = await PDFLib.PDFDocument.load(pdfBytes);
-                            const pages = await mergedPdf.copyPages(attachmentPdf, attachmentPdf.getPageIndices());
-                            pages.forEach((page) => mergedPdf.addPage(page));
-                        }
-                    }
-                }
-
-                const finalPdfBytes = await mergedPdf.save();
-
-                const blob = new Blob([finalPdfBytes], { type: "application/pdf" });
-                const url = URL.createObjectURL(blob);
-                const a = document.createElement("a");
-                a.href = url;
-                a.download = `Email_${formatFileName(subject)}.pdf`;
-                document.body.appendChild(a);
-                a.click();
-                document.body.removeChild(a);
-
-            },
-            x: 10,
-            y: 10,
-            html2canvas: {
-                scale: 0.5,
-                width: 800,
-                useCORS: true
-            }
-        });
         console.log('generatePDF end.');
+
+        return new Promise((resolve) => {
+            doc.html(outlookHtml, {
+                callback: async function (pdf) { // Hacer esta función async
+                    console.log('generatePDF 2');
+                    const pdfBytes = pdf.output("arraybuffer");
+
+                    // Fusionar PDFs
+                    const mergedPdfBytes = await mergePDFs(pdfBytes, attachments);
+
+                    // Descargar el PDF final
+                    const blob = new Blob([mergedPdfBytes], { type: "application/pdf" });
+                    const url = URL.createObjectURL(blob);
+                    const a = document.createElement("a");
+                    a.href = url;
+                    a.download = `Email_${formatFileName(subject)}.pdf`;
+                    document.body.appendChild(a);
+                    a.click();
+                    document.body.removeChild(a);
+
+                    resolve();
+                },
+                x: 10,
+                y: 10,
+                html2canvas: {
+                    scale: 0.5,
+                    width: 800,
+                    useCORS: true
+                }
+            });
+        });
     }
 
+
+    async function mergePDFs(emailPdfBytes, attachments) {
+        console.log("Iniciando combinación de PDFs...");
+
+        if (typeof PDFLib === "undefined") {
+            console.error("Error: PDFLib no está definido.");
+            return emailPdfBytes; // Devuelve el PDF base si PDFLib no está disponible
+        }
+
+        const mergedPdf = await PDFLib.PDFDocument.create();
+
+        // Agregar el PDF del correo
+        const mainPdf = await PDFLib.PDFDocument.load(emailPdfBytes);
+        const copiedPages = await mergedPdf.copyPages(mainPdf, mainPdf.getPageIndices());
+        copiedPages.forEach((page) => mergedPdf.addPage(page));
+
+        // Descargar y agregar PDFs adjuntos
+        for (const attachment of attachments) {
+            if (attachment.name.endsWith(".pdf")) {
+                console.log(`Descargando: ${attachment.name}`);
+
+                const pdfBytes = await downloadAttachmentAsBinary(attachment);
+                if (pdfBytes) {
+                    try {
+                        const attachmentPdf = await PDFLib.PDFDocument.load(pdfBytes);
+                        const pages = await mergedPdf.copyPages(attachmentPdf, attachmentPdf.getPageIndices());
+                        pages.forEach((page) => mergedPdf.addPage(page));
+                    } catch (error) {
+                        console.error(`Error procesando el PDF ${attachment.name}:`, error);
+                    }
+                } else {
+                    console.warn(`No se pudo descargar el archivo: ${attachment.name}`);
+                }
+            }
+        }
+
+        return await mergedPdf.save();
+    }
+
+    async function downloadAttachmentAsBinary(attachment) {
+        return new Promise((resolve, reject) => {
+            Office.context.mailbox.getCallbackTokenAsync({ isRest: true }, function (result) {
+                if (result.status === "succeeded") {
+                    const token = result.value;
+                    const attachmentUrl = Office.context.mailbox.ewsUrl + "/ews/Exchange.asmx";
+
+                    fetch(attachmentUrl, {
+                        method: "POST",
+                        headers: {
+                            "Authorization": "Bearer " + token,
+                            "Content-Type": "application/json"
+                        },
+                        body: JSON.stringify({
+                            // Aquí se arma la petición para descargar el adjunto en binario
+                        })
+                    })
+                        .then(response => response.arrayBuffer()) // Convertir a ArrayBuffer
+                        .then(pdfBytes => resolve(pdfBytes))
+                        .catch(error => {
+                            console.error("Error descargando adjunto:", error);
+                            resolve(null);
+                        });
+                } else {
+                    console.error("No se pudo obtener el token:", result.error);
+                    resolve(null);
+                }
+            });
+        });
+    }
 
     function generatePDF_onlypdf(htmlContent, subject, from, to, cc, bcc) {
         console.log('generatePDF init.');
