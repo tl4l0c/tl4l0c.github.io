@@ -14,7 +14,7 @@
         // Write message property values to the task pane
         console.log('item:');
         console.log(item);
-        $('#item-version').text('2025.02.17.18.32');
+        $('#item-version').text('2025.02.17.18.37');
         //$('#item-id').text(item.itemId);
         $('#item-subject').text(item.subject);
         //$('#item-internetMessageId').text(item.internetMessageId);
@@ -64,6 +64,7 @@
     }
 
     async function getAccessToken() {
+        console.log('getAccessToken Init.');
         const authUrl = "https://login.microsoftonline.com/common/oauth2/v2.0/authorize";
         const clientId = "78283a7f-c3ed-4dc2-9b04-0f411555145a"; // Reemplaza con el Client ID de Azure AD
         const redirectUri = "https://login.microsoftonline.com/common/oauth2/nativeclient";
@@ -76,9 +77,11 @@
             scope: scopes
         });
 
-        const loginUrl = `${authUrl}?${authParams.toString()}`;
-        window.open(loginUrl, "_blank");
 
+        const loginUrl = `${authUrl}?${authParams.toString()}`;
+        console.log('loginUrl:', loginUrl);
+        window.open(loginUrl, "_blank");
+        console.log('return');
         return new Promise((resolve) => {
             window.addEventListener("message", (event) => {
                 if (event.origin.includes("login.microsoftonline.com")) {
@@ -86,6 +89,7 @@
                 }
             });
         });
+        console.log('getAccessToken End.');
     }
 
     function getAuthToken(callback) {
