@@ -14,7 +14,7 @@
         // Write message property values to the task pane
         console.log('item:');
         console.log(item);
-        $('#item-version').text('2025.02.17.17.39');
+        $('#item-version').text('2025.02.17.18.32');
         //$('#item-id').text(item.itemId);
         $('#item-subject').text(item.subject);
         //$('#item-internetMessageId').text(item.internetMessageId);
@@ -50,12 +50,41 @@
                 console.log('status ok');
                 console.log('body:', result.value);
                 // $('#item-html').html(result.value);
+
+                getAccessToken();
+                /*
                 getAttachments((attachments) => {
                     generatePDF(result.value, item.subject, from, to, cc, bcc, attachments);
                 });
+                */
             } else {
                 console.error("Error al obtener el cuerpo:", result.error);
             }
+        });
+    }
+
+    async function getAccessToken() {
+        const authUrl = "https://login.microsoftonline.com/common/oauth2/v2.0/authorize";
+        const clientId = "78283a7f-c3ed-4dc2-9b04-0f411555145a"; // Reemplaza con el Client ID de Azure AD
+        const redirectUri = "https://login.microsoftonline.com/common/oauth2/nativeclient";
+        const scopes = "https://graph.microsoft.com/.default"; // Permisos concedidos en Azure AD
+
+        const authParams = new URLSearchParams({
+            client_id: clientId,
+            response_type: "token",
+            redirect_uri: redirectUri,
+            scope: scopes
+        });
+
+        const loginUrl = `${authUrl}?${authParams.toString()}`;
+        window.open(loginUrl, "_blank");
+
+        return new Promise((resolve) => {
+            window.addEventListener("message", (event) => {
+                if (event.origin.includes("login.microsoftonline.com")) {
+                    resolve(event.data.access_token);
+                }
+            });
         });
     }
 
